@@ -13,6 +13,7 @@ import Loading from "./components/Loading/Loading";
 import ProtectedRoute from "./components/ProtectedRoute";
 import OrdersPage from "./pages/OrdersPage/OrdersPage";
 import ProductsPage from "./pages/ProductsPage/ProductsPage";
+import UsersPage from "./pages/UsersPage/UsersPage";
 import OtherPage from "./pages/OtherPage/OtherPage";
 
 export default function App() {
@@ -63,6 +64,14 @@ export default function App() {
           element: (
             <Suspense fallback={<Loading />}>
               <ProductsPage />
+            </Suspense>
+          ),
+        },
+        {
+          path: "users",
+          element: (
+            <Suspense fallback={<Loading />}>
+              <UsersPage />
             </Suspense>
           ),
         },
