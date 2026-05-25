@@ -1,6 +1,6 @@
-import React, { memo } from 'react'
 import img from "@/assets/Group 1116606595 (5).png"
 import { Search } from 'lucide-react'
+import { memo } from 'react'
 import UserHeader from '../UserHeader/UserHeader'
 export default memo(function Header() {
   return (
