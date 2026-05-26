@@ -1,13 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { NavLink } from 'react-router-dom'
-import { Edit, Trash2, Layers3, Plus, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useFormik } from 'formik'
+import { ChevronLeft, ChevronRight, Edit, Plus, Trash2 } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import * as yup from 'yup'
 
-import { Input } from '../../components/ui/input'
 import { Button } from '../../components/ui/button'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog'
+import { Input } from '../../components/ui/input'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table'
 import { addBrand, deleteBrand, getBrands, updateBrand, type Brand } from '../../lib/productApi'
 
 const schema = yup.object({ brandName: yup.string().trim().required('Required') })
@@ -52,9 +51,7 @@ export default function BrandsPage() {
   })
 
   return (
-    <div className="space-y-6  animate-in fade-in duration-500">
-      {/* HEADER SECTION */}
-    
+    <div className="space-y-6  animate-in fade-in duration-500">    
       {/* TABLE SECTION */}
       <div className="border rounded-2xl bg-white shadow-sm overflow-hidden">
         <div className="p-6 flex justify-between items-center border-b">

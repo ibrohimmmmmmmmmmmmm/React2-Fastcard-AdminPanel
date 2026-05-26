@@ -1,5 +1,5 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Card, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
+import { Card, CardTitle } from "../../components/ui/card";
 
 const topProducts = [
   { name: "Men Grey Hoodie", price: "$49.90", units: 204 },
@@ -9,7 +9,7 @@ const topProducts = [
 
 export function TopProductsTable() {
   return (
-    <Card className="shadow-none border-slate-200 p-6 w-[49%]">
+    <Card className="shadow-none border-slate-200 p-6 w-full">
       <CardTitle className="mb-4">Top Products by Units Sold</CardTitle>
       <Table>
         <TableHeader>
