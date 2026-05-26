@@ -15,6 +15,9 @@ import OrdersPage from "./pages/OrdersPage/OrdersPage";
 import ProductsPage from "./pages/ProductsPage/ProductsPage";
 import UsersPage from "./pages/UsersPage/UsersPage";
 import OtherPage from "./pages/OtherPage/OtherPage";
+import CategoriesPage from "./pages/OtherPage/CategoriesPage";
+import BrandsPage from "./pages/OtherPage/BrandsPage";
+import BannersPage from "./pages/OtherPage/BannersPage";
 import AddProductPage from "./pages/AddProductPage/AddProductPage";
 
 export default function App() {
@@ -91,6 +94,36 @@ export default function App() {
               <OtherPage />
             </Suspense>
           ),
+          children: [
+            {
+              index: true,
+              element: <Navigate to="categories" replace />,
+            },
+            {
+              path: "categories",
+              element: (
+                <Suspense fallback={<Loading />}>
+                  <CategoriesPage />
+                </Suspense>
+              ),
+            },
+            {
+              path: "brands",
+              element: (
+                <Suspense fallback={<Loading />}>
+                  <BrandsPage />
+                </Suspense>
+              ),
+            },
+            {
+              path: "banners",
+              element: (
+                <Suspense fallback={<Loading />}>
+                  <BannersPage />
+                </Suspense>
+              ),
+            },
+          ],
         },
       ],
     },

@@ -1,68 +1,57 @@
-import React from 'react';
-import { Search, Plus, Pencil, Smartphone, Monitor, Watch, Headphones, Camera, Gamepad2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { NavLink, Outlet } from 'react-router-dom'
+import { Layers3 } from 'lucide-react'
 
-const OtherPage = () => {
-  // Mock data to match the grid layout
-  const categories = [
-    { name: 'Phones', icon: <Smartphone size={32} /> },
-    { name: 'Computers', icon: <Monitor size={32} /> },
-    { name: 'SmartWatch', icon: <Watch size={32} /> },
-    { name: 'HeadPhones', icon: <Headphones size={32} /> },
-    { name: 'Camera', icon: <Camera size={32} /> },
-  ];
+const tabs = [
+  { label: 'Categories', path: 'categories' },
+  { label: 'Brands', path: 'brands' },
+  { label: 'Banners', path: 'banners' },
+]
 
+export default function OtherPage() {
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      {/* Top Navigation */}
-      <div className="flex justify-between items-center mb-6 bg-white p-2 rounded-lg border shadow-sm">
-        <div className="flex gap-2">
-          {['Categories', 'Brands', 'Banners'].map((tab, i) => (
-            <button key={tab} className={`px-4 py-2 rounded-md ${i === 0 ? 'bg-blue-100 text-blue-600 font-medium' : 'text-gray-600'}`}>
-              {tab}
-            </button>
-          ))}
-        </div>
-        <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-          <Plus size={20} /> Add new
-        </button>
-      </div>
+    <div className="space-y-6">
+      <div className="rounded-[28px] border border-slate-200 bg-white px-6 py-5 shadow-sm">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          
+          {/* LEFT SIDE */}
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-600 shadow-sm">
+              <Layers3 className="h-7 w-7 text-white" />
+            </div>
 
-      {/* Search */}
-      <div className="relative mb-6 max-w-sm">
-        <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
-        <input type="text" placeholder="Search..." className="w-full pl-10 pr-4 py-2 border rounded-md" />
-      </div>
+            <div>
+              <p className="text-[13px] font-medium uppercase tracking-[0.28em] text-slate-400">
+                Other management
+              </p>
 
-      {/* Grid */}
-      <div className="grid grid-cols-5 gap-4 mb-8">
-        {[...Array(15)].map((_, i) => (
-          <div key={i} className="bg-white p-4 border rounded-lg flex flex-col items-center relative group">
-            <Pencil size={16} className="absolute top-3 right-3 text-blue-500 cursor-pointer" />
-            <div className="my-4">{categories[i % 5].icon}</div>
-            <h3 className="text-sm font-medium">{categories[i % 5].name}</h3>
+              <h1 className="mt-1 text-[20px] font-bold leading-none text-slate-900 md:text-[22px]">
+                Categories, brands and banners
+              </h1>
+            </div>
           </div>
-        ))}
-        {/* Gaming card */}
-        <div className="bg-white p-4 border rounded-lg flex flex-col items-center relative">
-          <Pencil size={16} className="absolute top-3 right-3 text-blue-500 cursor-pointer" />
-          <div className="my-4"><Gamepad2 size={32} /></div>
-          <h3 className="text-sm font-medium">Gaming</h3>
+
+          <div className="flex items-center gap-1">
+  {tabs.map((tab) => (
+    <NavLink
+      key={tab.path}
+      to={tab.path}
+      className={({ isActive }) =>
+        `rounded-full px-5 py-2.5 text-[15px] font-medium transition-colors duration-200 
+        ${
+          isActive
+            ? 'bg-blue-600 text-white shadow-sm' 
+            : 'text-slate-600 hover:text-slate-900'
+        }`
+      }
+    >
+      {tab.label}
+    </NavLink>
+  ))}
+</div>
         </div>
       </div>
 
-      {/* Pagination Footer */}
-      <div className="flex items-center gap-2 text-gray-600">
-        <button className="p-1 hover:bg-gray-200 rounded"><ChevronLeft size={18} /></button>
-        {[1, 2, 3, 4, 5, 6, '...'].map((page, i) => (
-          <button key={i} className={`px-3 py-1 rounded ${page === 2 ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-200'}`}>
-            {page}
-          </button>
-        ))}
-        <button className="p-1 hover:bg-gray-200 rounded"><ChevronRight size={18} /></button>
-        <span className="ml-auto text-gray-500">274 Results</span>
-      </div>
+      <Outlet />
     </div>
-  );
-};
-
-export default OtherPage;
+  )
+}
