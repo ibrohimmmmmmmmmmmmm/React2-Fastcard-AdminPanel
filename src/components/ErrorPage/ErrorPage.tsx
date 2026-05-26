@@ -1,6 +1,5 @@
-import React from 'react';
 import { motion } from 'framer-motion';
-import { Home, ArrowLeft } from 'lucide-react'; // Using Lucide for clean icons
+import { ArrowLeft, Home } from 'lucide-react'; // Using Lucide for clean icons
 
 export default function ErrorPage() {
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Loading() {
   const [messageIndex, setMessageIndex] = useState(0);
@@ -91,5 +91,5 @@ export default function Loading() {
         }
       `}</style>
     </div>
-  );
+  )
 }
