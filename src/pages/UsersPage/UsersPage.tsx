@@ -3,22 +3,8 @@ import { Search, Mail, Phone, User as UserIcon } from 'lucide-react'
 
 import { Checkbox } from '../../components/ui/checkbox'
 import { Input } from '../../components/ui/input'
-import { Button } from '../../components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../../components/ui/select'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '../../components/ui/table'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../components/ui/table'
 import { getUsers, type User } from '../../lib/userApi'
 
 export default function UsersPage() {
@@ -28,10 +14,10 @@ export default function UsersPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (search?: string) => {
     setIsLoading(true)
     try {
-      const response = await getUsers(1, 100, searchTerm || undefined)
+      const response = await getUsers(1, 100, search || undefined)
       setUsers(response)
     } catch (error) {
       setToast({ type: 'error', message: 'Failed to load users.' })
@@ -40,9 +26,19 @@ export default function UsersPage() {
     }
   }
 
+  // ✅ load first time
   useEffect(() => {
     fetchUsers()
   }, [])
+
+  // ✅ FIX: search now triggers API
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      fetchUsers(searchTerm)
+    }, 400)
+
+    return () => clearTimeout(delay)
+  }, [searchTerm])
 
   useEffect(() => {
     if (toast) {
@@ -59,9 +55,8 @@ export default function UsersPage() {
 
   const visibleUsers = useMemo(() => {
     const normalizedTerm = searchTerm.trim().toLowerCase()
-    if (!normalizedTerm) {
-      return users
-    }
+
+    if (!normalizedTerm) return users
 
     return users.filter(
       (user) =>
@@ -85,10 +80,9 @@ export default function UsersPage() {
   const toggleAllRows = () => {
     if (isAllSelected) {
       setSelectedRows([])
-      return
+    } else {
+      setSelectedRows(visibleUsers.map((user) => user.userId))
     }
-
-    setSelectedRows(visibleUsers.map((user) => user.userId))
   }
 
   return (
@@ -112,6 +106,7 @@ export default function UsersPage() {
             disabled={isLoading}
           />
         </div>
+
         <Select defaultValue="newest">
           <SelectTrigger className="w-45">
             <SelectValue placeholder="Newest" />
@@ -137,6 +132,7 @@ export default function UsersPage() {
               <TableHead>Roles</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
             {visibleUsers.length === 0 ? (
               <TableRow>
@@ -153,6 +149,7 @@ export default function UsersPage() {
                       onCheckedChange={() => toggleRow(user.userId)}
                     />
                   </TableCell>
+
                   <TableCell className="font-medium flex items-center gap-3">
                     {user.image ? (
                       <img
@@ -167,17 +164,20 @@ export default function UsersPage() {
                     )}
                     {user.userName}
                   </TableCell>
+
                   <TableCell>
                     {user.firstName && user.lastName
                       ? `${user.firstName} ${user.lastName}`
                       : user.firstName || user.lastName || '-'}
                   </TableCell>
+
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <Mail size={16} className="text-slate-400" />
                       {user.email}
                     </div>
                   </TableCell>
+
                   <TableCell>
                     {user.phoneNumber ? (
                       <div className="flex items-center gap-2">
@@ -188,6 +188,7 @@ export default function UsersPage() {
                       <span className="text-slate-400">-</span>
                     )}
                   </TableCell>
+
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {user.userRoles.map((role) => (

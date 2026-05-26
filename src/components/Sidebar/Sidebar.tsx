@@ -5,7 +5,6 @@ const menuItems = [
   { name: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { name: "Orders", path: "/admin/orders", icon: ListOrdered },
   { name: "Products", path: "/admin/products", icon: Tag },
-  { name: "Users", path: "/admin/users", icon: Users },
   { name: "Other", path: "/admin/other", icon: Folder },
 ];
 

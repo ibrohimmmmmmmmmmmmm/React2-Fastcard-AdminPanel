@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Search, Plus, Edit, Trash2 } from 'lucide-react'
 import { useFormik } from 'formik'
 import * as yup from 'yup'
@@ -48,6 +49,7 @@ const productSchema = yup.object({
 })
 
 export default function ProductPage() {
+  const navigate = useNavigate()
   const [products, setProducts] = useState<Product[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedRows, setSelectedRows] = useState<number[]>([])
@@ -96,7 +98,7 @@ export default function ProductPage() {
     }
 
     return products.filter((product) =>
-      product.name.toLowerCase().includes(normalizedTerm)
+      product.productName.toLowerCase().includes(normalizedTerm)
     )
   }, [products, searchTerm])
 
@@ -153,10 +155,10 @@ export default function ProductPage() {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      name: selectedProduct?.name ?? '',
+      name: selectedProduct?.productName ?? '',
       price: selectedProduct?.price ?? 0,
-      inventory: selectedProduct?.inventory ?? '',
-      category: selectedProduct?.category ?? '',
+      inventory: selectedProduct?.quantity ?? '',
+      category: selectedProduct?.categoryName ?? '',
     },
     validationSchema: productSchema,
     onSubmit: async (values) => {
@@ -167,10 +169,10 @@ export default function ProductPage() {
       setIsSaving(true)
       try {
         await updateProduct(selectedProduct.id, {
-          name: values.name,
+          productName: values.name,
           price: Number(values.price),
-          inventory: values.inventory,
-          category: values.category,
+          quantity: Number(values.inventory),
+          categoryId: selectedProduct.categoryId,
         })
         setToast({ type: 'success', message: 'Product updated successfully.' })
         setEditModalOpen(false)
@@ -198,7 +200,7 @@ export default function ProductPage() {
               Delete Selected
             </Button>
           )}
-          <Button className="bg-blue-600 p-5 hover:bg-blue-700">
+          <Button className="bg-blue-600 p-5 hover:bg-blue-700" onClick={() => navigate('/admin/products/add')}>
             <Plus className="mr-2 h-4 w-4" /> Add order
           </Button>
         </div>
@@ -209,7 +211,7 @@ export default function ProductPage() {
       )}
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-6">
-        <div className="relative flex-1 max-w-sm">
+        <div className="relative flex-1 max-w-sm ">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search..."
@@ -270,10 +272,10 @@ export default function ProductPage() {
                   </TableCell>
                   <TableCell className="font-medium flex items-center gap-3">
                     <div className="w-10 h-10 bg-gray-200 rounded-md" />
-                    {product.name}
+                    {product.productName}
                   </TableCell>
-                  <TableCell>{product.inventory}</TableCell>
-                  <TableCell>{product.category}</TableCell>
+                  <TableCell>{product.quantity}</TableCell>
+                  <TableCell>{product.categoryName}</TableCell>
                   <TableCell>${product.price.toFixed(2)}</TableCell>
                   <TableCell className="text-right space-x-2">
                     <Button

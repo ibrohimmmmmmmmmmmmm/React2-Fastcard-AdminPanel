@@ -15,6 +15,7 @@ import OrdersPage from "./pages/OrdersPage/OrdersPage";
 import ProductsPage from "./pages/ProductsPage/ProductsPage";
 import UsersPage from "./pages/UsersPage/UsersPage";
 import OtherPage from "./pages/OtherPage/OtherPage";
+import AddProductPage from "./pages/AddProductPage/AddProductPage";
 
 export default function App() {
   const router = createHashRouter([
@@ -64,6 +65,14 @@ export default function App() {
           element: (
             <Suspense fallback={<Loading />}>
               <ProductsPage />
+            </Suspense>
+          ),
+        },
+        {
+          path: "products/add",
+          element: (
+            <Suspense fallback={<Loading />}>
+              <AddProductPage />
             </Suspense>
           ),
         },
