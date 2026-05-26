@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useFormik } from 'formik'
 import * as yup from 'yup'
+import type { ReactElement } from 'react'
 
 import { Checkbox } from '../../components/ui/checkbox'
 import { Input } from '../../components/ui/input'
@@ -45,14 +46,13 @@ const categorySchema = yup.object({
   name: yup.string().trim().required('Category name is required'),
 
   image: yup
-    .mixed()
+    .mixed<File>()
     .nullable()
     .test(
       'fileType',
       'Only PNG, JPG, SVG, WEBP or GIF files are supported',
       (value) => {
         if (!value) return true
-
         return (
           value instanceof File &&
           [
@@ -70,25 +70,15 @@ const categorySchema = yup.object({
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [searchTerm, setSearchTerm] = useState('')
-
   const [selectedIds, setSelectedIds] = useState<number[]>([])
-
   const [page, setPage] = useState(1)
-
   const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-
   const [dialogOpen, setDialogOpen] = useState(false)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-
-  const [selectedCategory, setSelectedCategory] =
-    useState<Category | null>(null)
-
-  const [toast, setToast] = useState<{
-    type: 'success' | 'error'
-    message: string
-  } | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   /* =========================
      FETCH CATEGORIES
@@ -97,15 +87,10 @@ export default function CategoriesPage() {
   const fetchCategories = useCallback(async () => {
     try {
       setIsLoading(true)
-
       const response = await getCategories()
-
       setCategories(response)
-    } catch (error) {
-      setToast({
-        type: 'error',
-        message: 'Failed to fetch categories',
-      })
+    } catch {
+      setToast({ type: 'error', message: 'Failed to fetch categories' })
     } finally {
       setIsLoading(false)
     }
@@ -117,25 +102,18 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     if (!toast) return
-
-    const timer = setTimeout(() => {
-      setToast(null)
-    }, 3000)
-
+    const timer = setTimeout(() => setToast(null), 3000)
     return () => clearTimeout(timer)
   }, [toast])
 
   /* =========================
-     FIXED SEARCH
+     SEARCH
   ========================= */
 
   const filteredCategories = useMemo(() => {
     if (!searchTerm.trim()) return categories
-
     return categories.filter((category) =>
-      category.categoryName
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
+      category.categoryName.toLowerCase().includes(searchTerm.toLowerCase())
     )
   }, [categories, searchTerm])
 
@@ -145,14 +123,10 @@ export default function CategoriesPage() {
 
   const paginatedCategories = useMemo(() => {
     const start = (page - 1) * PAGE_SIZE
-
     return filteredCategories.slice(start, start + PAGE_SIZE)
   }, [filteredCategories, page])
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredCategories.length / PAGE_SIZE)
-  )
+  const totalPages = Math.max(1, Math.ceil(filteredCategories.length / PAGE_SIZE))
 
   /* =========================
      SELECT
@@ -160,9 +134,7 @@ export default function CategoriesPage() {
 
   const toggleSelect = (id: number) => {
     setSelectedIds((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     )
   }
 
@@ -170,7 +142,7 @@ export default function CategoriesPage() {
      ICONS
   ========================= */
 
-  const iconMap: Record<string, JSX.Element> = {
+  const iconMap: Record<string, ReactElement> = {
     phones: <Smartphone className="h-8 w-8 text-slate-500" />,
     computers: <Monitor className="h-8 w-8 text-slate-500" />,
     smartwatch: <Watch className="h-8 w-8 text-slate-500" />,
@@ -179,14 +151,9 @@ export default function CategoriesPage() {
     gaming: <Gamepad2 className="h-8 w-8 text-slate-500" />,
   }
 
-  const getCategoryIcon = (name: string) => {
+  const getCategoryIcon = (name: string): ReactElement => {
     const key = name.toLowerCase().replace(/\s+/g, '')
-
-    return (
-      iconMap[key] ?? (
-        <ImageIcon className="h-8 w-8 text-slate-400" />
-      )
-    )
+    return iconMap[key] ?? <ImageIcon className="h-8 w-8 text-slate-400" />
   }
 
   /* =========================
@@ -205,24 +172,12 @@ export default function CategoriesPage() {
   const handleDelete = async () => {
     try {
       setIsDeleting(true)
-
-      await Promise.all(
-        selectedIds.map((id) => deleteCategory(id))
-      )
-
-      setToast({
-        type: 'success',
-        message: 'Category deleted successfully',
-      })
-
+      await Promise.all(selectedIds.map((id) => deleteCategory(id)))
+      setToast({ type: 'success', message: 'Category deleted successfully' })
       setDeleteDialogOpen(false)
-
       refresh()
-    } catch (error) {
-      setToast({
-        type: 'error',
-        message: 'Failed to delete category',
-      })
+    } catch {
+      setToast({ type: 'error', message: 'Failed to delete category' })
     } finally {
       setIsDeleting(false)
     }
@@ -232,12 +187,12 @@ export default function CategoriesPage() {
      FORMIK
   ========================= */
 
-  const formik = useFormik({
+  const formik = useFormik<{ name: string; image: File | null }>({
     enableReinitialize: true,
 
     initialValues: {
-      name: selectedCategory?.categoryName || '',
-      image: null as File | null,
+      name: selectedCategory?.categoryName ?? '',
+      image: null,
     },
 
     validationSchema: categorySchema,
@@ -253,32 +208,18 @@ export default function CategoriesPage() {
 
         if (selectedCategory) {
           await updateCategory(selectedCategory.id, payload)
-
-          setToast({
-            type: 'success',
-            message: 'Category updated successfully',
-          })
+          setToast({ type: 'success', message: 'Category updated successfully' })
         } else {
           await addCategory(payload)
-
-          setToast({
-            type: 'success',
-            message: 'Category created successfully',
-          })
+          setToast({ type: 'success', message: 'Category created successfully' })
         }
 
         resetForm()
-
         setDialogOpen(false)
-
         setSelectedCategory(null)
-
         refresh()
-      } catch (error) {
-        setToast({
-          type: 'error',
-          message: 'Something went wrong',
-        })
+      } catch {
+        setToast({ type: 'error', message: 'Something went wrong' })
       } finally {
         setIsSaving(false)
       }
@@ -288,12 +229,10 @@ export default function CategoriesPage() {
   return (
     <div className="space-y-5">
       {/* TOP BAR */}
-
       <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="relative w-full max-w-[320px]">
             <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
             <Input
               value={searchTerm}
               onChange={(e) => {
@@ -332,7 +271,6 @@ export default function CategoriesPage() {
       </div>
 
       {/* CARDS */}
-
       <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
         {isLoading ? (
           Array.from({ length: 10 }).map((_, index) => (
@@ -344,14 +282,8 @@ export default function CategoriesPage() {
         ) : paginatedCategories.length === 0 ? (
           <div className="col-span-full flex flex-col items-center justify-center rounded-[24px] border border-dashed border-slate-300 bg-white py-20 text-center">
             <FolderOpen className="mb-4 h-12 w-12 text-slate-300" />
-
-            <h3 className="text-lg font-semibold text-slate-700">
-              No categories found
-            </h3>
-
-            <p className="mt-1 text-sm text-slate-500">
-              Try creating a new category
-            </p>
+            <h3 className="text-lg font-semibold text-slate-700">No categories found</h3>
+            <p className="mt-1 text-sm text-slate-500">Try creating a new category</p>
           </div>
         ) : (
           paginatedCategories.map((category) => (
@@ -359,18 +291,12 @@ export default function CategoriesPage() {
               key={category.id}
               className="group relative overflow-hidden rounded-[24px] border border-slate-200 bg-white p-4 transition-all duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-md"
             >
-              {/* CHECKBOX */}
-
               <div className="absolute left-4 top-4 z-10">
                 <Checkbox
                   checked={selectedIds.includes(category.id)}
-                  onCheckedChange={() =>
-                    toggleSelect(category.id)
-                  }
+                  onCheckedChange={() => toggleSelect(category.id)}
                 />
               </div>
-
-              {/* EDIT */}
 
               <button
                 onClick={() => {
@@ -381,8 +307,6 @@ export default function CategoriesPage() {
               >
                 <Edit className="h-4 w-4 text-slate-500" />
               </button>
-
-              {/* IMAGE */}
 
               <div className="flex h-[150px] items-center justify-center overflow-hidden rounded-[18px] bg-slate-50">
                 {category.categoryImage ? (
@@ -396,15 +320,12 @@ export default function CategoriesPage() {
                 )}
               </div>
 
-              {/* INFO */}
-
               <div className="mt-5 text-center">
                 <h3 className="line-clamp-1 text-[17px] font-semibold text-slate-800">
                   {category.categoryName}
                 </h3>
-
                 <p className="mt-1 text-sm text-slate-500">
-                  {category.subCategories?.length || 0} sub categories
+                  {category.subCategories?.length ?? 0} sub categories
                 </p>
               </div>
             </div>
@@ -413,34 +334,25 @@ export default function CategoriesPage() {
       </div>
 
       {/* PAGINATION */}
-
       {totalPages > 1 && (
         <div className="flex items-center justify-between rounded-[24px] border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-sm text-slate-500">
             Page {page} of {totalPages}
           </p>
-
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               className="rounded-xl"
               disabled={page === 1}
-              onClick={() =>
-                setPage((prev) => Math.max(prev - 1, 1))
-              }
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
             >
               Previous
             </Button>
-
             <Button
               variant="outline"
               className="rounded-xl"
               disabled={page === totalPages}
-              onClick={() =>
-                setPage((prev) =>
-                  Math.min(prev + 1, totalPages)
-                )
-              }
+              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
             >
               Next
             </Button>
@@ -448,33 +360,25 @@ export default function CategoriesPage() {
         </div>
       )}
 
-      {/* CREATE / EDIT */}
-
+      {/* CREATE / EDIT DIALOG */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="overflow-hidden rounded-[30px] border-none p-0 sm:max-w-[520px]">
           <div className="border-b border-slate-100 px-7 py-6">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-slate-900">
-                {selectedCategory
-                  ? 'Edit category'
-                  : 'Create category'}
+                {selectedCategory ? 'Edit category' : 'Create category'}
               </DialogTitle>
-
               <DialogDescription className="pt-1 text-slate-500">
                 Manage your product categories easily.
               </DialogDescription>
             </DialogHeader>
           </div>
 
-          <form
-            onSubmit={formik.handleSubmit}
-            className="space-y-5 p-7"
-          >
+          <form onSubmit={formik.handleSubmit} className="space-y-5 p-7">
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
                 Category name
               </label>
-
               <Input
                 name="name"
                 value={formik.values.name}
@@ -482,38 +386,28 @@ export default function CategoriesPage() {
                 placeholder="Enter category name"
                 className="h-12 rounded-xl"
               />
-
-              {formik.touched.name &&
-                formik.errors.name && (
-                  <p className="mt-2 text-sm text-red-500">
-                    {formik.errors.name}
-                  </p>
-                )}
+              {formik.touched.name && formik.errors.name && (
+                <p className="mt-2 text-sm text-red-500">{formik.errors.name}</p>
+              )}
             </div>
 
             <div>
               <label className="mb-2 block text-sm font-medium text-slate-700">
                 Category image
               </label>
-
               <div className="rounded-2xl border border-dashed border-slate-300 p-5">
                 <Input
                   type="file"
                   accept="image/*"
                   onChange={(e) => {
-                    const file =
-                      e.currentTarget.files?.[0] || null
-
+                    const file = e.currentTarget.files?.[0] ?? null
                     formik.setFieldValue('image', file)
                   }}
                 />
-
                 {formik.values.image && (
                   <div className="mt-4 overflow-hidden rounded-xl border border-slate-200">
                     <img
-                      src={URL.createObjectURL(
-                        formik.values.image
-                      )}
+                      src={URL.createObjectURL(formik.values.image)}
                       alt="preview"
                       className="h-44 w-full object-cover"
                     />
@@ -534,40 +428,25 @@ export default function CategoriesPage() {
               >
                 Cancel
               </Button>
-
               <Button
                 type="submit"
                 disabled={isSaving}
                 className="rounded-xl bg-blue-600 hover:bg-blue-700"
               >
-                {isSaving
-                  ? 'Saving...'
-                  : selectedCategory
-                  ? 'Save changes'
-                  : 'Create category'}
+                {isSaving ? 'Saving...' : selectedCategory ? 'Save changes' : 'Create category'}
               </Button>
             </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* DELETE */}
-
-      <Dialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-      >
+      {/* DELETE DIALOG */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="rounded-[28px]">
           <DialogHeader>
-            <DialogTitle>
-              Delete category
-            </DialogTitle>
-
-            <DialogDescription>
-              This action cannot be undone.
-            </DialogDescription>
+            <DialogTitle>Delete category</DialogTitle>
+            <DialogDescription>This action cannot be undone.</DialogDescription>
           </DialogHeader>
-
           <DialogFooter>
             <Button
               variant="outline"
@@ -576,7 +455,6 @@ export default function CategoriesPage() {
             >
               Cancel
             </Button>
-
             <Button
               variant="destructive"
               className="rounded-xl"
@@ -589,13 +467,11 @@ export default function CategoriesPage() {
         </DialogContent>
       </Dialog>
 
-
+      {/* TOAST */}
       {toast && (
         <div
           className={`fixed bottom-6 right-6 z-50 rounded-2xl px-5 py-3 text-sm text-white shadow-xl ${
-            toast.type === 'success'
-              ? 'bg-emerald-500'
-              : 'bg-red-500'
+            toast.type === 'success' ? 'bg-emerald-500' : 'bg-red-500'
           }`}
         >
           {toast.message}

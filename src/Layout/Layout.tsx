@@ -1,8 +1,8 @@
-import React, { memo } from 'react'
-import Header from '../components/Header/Header'
-import Sidebar from '../components/Sidebar/Sidebar'
+import { memo } from 'react'
 import { Outlet } from 'react-router-dom'
 import Footer from '../components/Footer/Footer'
+import Header from '../components/Header/Header'
+import Sidebar from '../components/Sidebar/Sidebar'
 
 export default memo(function Layout() {
   return (
